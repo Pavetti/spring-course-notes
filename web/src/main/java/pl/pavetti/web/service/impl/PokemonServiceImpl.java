@@ -1,15 +1,18 @@
 package pl.pavetti.web.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pl.pavetti.web.dto.PokemonDto;
+import pl.pavetti.web.dto.PokemonResponse;
 import pl.pavetti.web.exception.PokemonNotFoundException;
 import pl.pavetti.web.model.Pokemon;
 import pl.pavetti.web.repository.PokemonRepository;
 import pl.pavetti.web.service.PokemonService;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class PokemonServiceImpl implements PokemonService {
@@ -37,11 +40,21 @@ public class PokemonServiceImpl implements PokemonService {
     }
 
     @Override
-    public List<PokemonDto> getAllPokemon() {
-        return pokemonRepository.findAll()
-                .stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
+    public PokemonResponse getAllPokemon(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Pokemon> pokemons = pokemonRepository.findAll(pageable);
+        List<Pokemon> listOfPokemons = pokemons.getContent();
+        List<PokemonDto> content = listOfPokemons.stream().map(this::mapToDto).toList();
+
+        PokemonResponse pokemonResponse = new PokemonResponse();
+        pokemonResponse.setContent(content);
+        pokemonResponse.setPageNo(pokemons.getNumber());
+        pokemonResponse.setPageSize(pokemons.getSize());
+        pokemonResponse.setTotalElements(pokemons.getTotalElements());
+        pokemonResponse.setTotalPages(pokemons.getTotalPages());
+        pokemonResponse.setLast(pokemons.isLast());
+
+        return pokemonResponse;
     }
 
     @Override
@@ -69,19 +82,18 @@ public class PokemonServiceImpl implements PokemonService {
         pokemonRepository.delete(pokemon);
     }
 
-    private PokemonDto mapToDto(Pokemon pokemon){
-        return new PokemonDto(
-                pokemon.getId(),
-                pokemon.getName(),
-                pokemon.getType()
-        );
+    private PokemonDto mapToDto(Pokemon pokemon) {
+        PokemonDto pokemonDto = new PokemonDto();
+        pokemonDto.setId(pokemon.getId());
+        pokemonDto.setName(pokemon.getName());
+        pokemonDto.setType(pokemon.getType());
+        return pokemonDto;
     }
 
-    private Pokemon mapToEntitu(PokemonDto pokemonDto){
-        return new Pokemon(
-                pokemonDto.getId(),
-                pokemonDto.getName(),
-                pokemonDto.getType()
-        );
+    private Pokemon mapToEntity(PokemonDto pokemonDto) {
+        Pokemon pokemon = new Pokemon();
+        pokemon.setName(pokemonDto.getName());
+        pokemon.setType(pokemonDto.getType());
+        return pokemon;
     }
 }
