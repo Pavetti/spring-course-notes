@@ -3,6 +3,7 @@ package pl.pavetti.web.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.pavetti.web.dto.PokemonDto;
+import pl.pavetti.web.exception.PokemonNotFoundException;
 import pl.pavetti.web.model.Pokemon;
 import pl.pavetti.web.repository.PokemonRepository;
 import pl.pavetti.web.service.PokemonService;
@@ -45,17 +46,27 @@ public class PokemonServiceImpl implements PokemonService {
 
     @Override
     public PokemonDto getPokemonById(int id) {
-        return null;
+        Pokemon pokemon = pokemonRepository.findById(id).orElseThrow( () ->
+                new PokemonNotFoundException("could not find the pokemon with id = " + id));
+        return mapToDto(pokemon);
     }
 
     @Override
     public PokemonDto updatePokemon(PokemonDto pokemonDto, int id) {
-        return null;
+        Pokemon pokemon = pokemonRepository.findById(id).orElseThrow( () ->
+                new PokemonNotFoundException("could not find the pokemon with id = " + id));
+        pokemon.setName(pokemonDto.getName());
+        pokemon.setType(pokemonDto.getType());
+
+        Pokemon updatedPokeomn =  pokemonRepository.save(pokemon);
+        return mapToDto(updatedPokeomn);
     }
 
     @Override
     public void deletePokemon(int id) {
-
+        Pokemon pokemon = pokemonRepository.findById(id).orElseThrow( () ->
+                new PokemonNotFoundException("could not find the pokemon with id = " + id));
+        pokemonRepository.delete(pokemon);
     }
 
     private PokemonDto mapToDto(Pokemon pokemon){
