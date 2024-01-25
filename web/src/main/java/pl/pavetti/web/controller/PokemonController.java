@@ -1,9 +1,12 @@
 package pl.pavetti.web.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.pavetti.web.dto.PokemonDto;
 import pl.pavetti.web.model.Pokemon;
+import pl.pavetti.web.service.PokemonService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,14 +15,15 @@ import java.util.List;
 @RequestMapping("/api/")
 public class PokemonController {
 
-    @GetMapping("pokemon")
-    public ResponseEntity<List<Pokemon>> getPokemon(){
-        List<Pokemon> pokemons = new ArrayList<>();
-        pokemons.add(new Pokemon(1,"Pikachu","electric"));
-        pokemons.add(new Pokemon(2,"Squirtle","water"));
-        pokemons.add(new Pokemon(3,"Charmander","fire"));
-        return ResponseEntity.ok(pokemons);
+    private final PokemonService pokemonService;
+    @Autowired
+    public PokemonController(PokemonService pokemonService) {
+        this.pokemonService = pokemonService;
+    }
 
+    @GetMapping("pokemon")
+    public ResponseEntity<List<PokemonDto>> getPokemon(){
+        return ResponseEntity.ok(pokemonService.getAllPokemon());
     }
 
     @GetMapping("pokemon/{id}")
@@ -29,11 +33,8 @@ public class PokemonController {
 
     @PostMapping("pokemon/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Pokemon> createPokemon(@RequestBody Pokemon pokemon){
-        System.out.println(pokemon.getId());
-        System.out.println(pokemon.getName());
-        System.out.println(pokemon.getType());
-        return new ResponseEntity<>(pokemon,HttpStatus.CREATED);
+    public ResponseEntity<PokemonDto> createPokemon(@RequestBody PokemonDto pokemonDto){
+        return new ResponseEntity<>(pokemonService.createPokemon(pokemonDto),HttpStatus.CREATED);
     }
 
     @PostMapping("pokemon/{id}/update")
