@@ -29,11 +29,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity user = userRepository.findByUsername(username).orElseThrow(
                 () -> new UsernameNotFoundException("could not find user"));
-        return new User(user.getUsername(),user.getPassword(),mapRolesToAuthorieties(user.getRoles()));
+        return new User(user.getUsername(),user.getPassword(),mapRolesToAuthorities(user.getRoles()));
     }
 
-    private Collection<GrantedAuthority> mapRolesToAuthorieties(List<Role> roles) {
-        List<GrantedAuthority> collect = roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
-        return collect;
+    private Collection<GrantedAuthority> mapRolesToAuthorities(List<Role> roles) {
+        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
     }
 }
