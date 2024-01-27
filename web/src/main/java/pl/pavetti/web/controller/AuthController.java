@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import pl.pavetti.web.repository.RoleRepository;
 import pl.pavetti.web.repository.UserRepository;
+import pl.pavetti.web.security.JwtGenerator;
+import pl.pavetti.web.security.dto.AuthResponseDto;
 import pl.pavetti.web.security.dto.LoginDto;
 import pl.pavetti.web.security.dto.RegisterDto;
 import pl.pavetti.web.security.model.Role;
@@ -27,17 +29,20 @@ public class AuthController {
     private RoleRepository roleRepository;
     private AuthenticationManager authenticationManager;
     private PasswordEncoder passwordEncoder;
+    private JwtGenerator tokenGenerator;
     @Autowired
     public AuthController(
             UserRepository userRepository,
             RoleRepository roleRepository,
             AuthenticationManager authenticationManager,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            JwtGenerator tokenGenerator
     ) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
+        this.tokenGenerator = tokenGenerator;
     }
 
     @PostMapping("register")
@@ -59,7 +64,7 @@ public class AuthController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<String> login(@RequestBody LoginDto loginDto){
+    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto){
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginDto.getUsername(),
@@ -67,6 +72,7 @@ public class AuthController {
                 )
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return ResponseEntity.ok("login success");
+        String token = tokenGenerator.generateToken(authentication);
+        return ResponseEntity.ok(new AuthResponseDto(token));
     }
 }

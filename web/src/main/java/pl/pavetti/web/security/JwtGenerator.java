@@ -22,13 +22,12 @@ public class JwtGenerator {
 
         Date expirationDate = new Date(currentDate.getTime() + SecurityConstans.JWT_EXPIRATION);
         SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SecurityConstans.JWT_SECRET_KEY));
-        String token = Jwts.builder()
+        return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
                 .expiration(expirationDate)
                 .signWith(key)
                 .compact();
-        return token;
     }
 
     public String getUsernameFromJWT(String token){
