@@ -1,4 +1,4 @@
-package pl.pavetti.securityCourse.config;
+package pl.pavetti.securityCourse.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -25,11 +25,15 @@ public class JwtService {
             Map<String,Object> extraClaims,
             UserDetails userDetails
     ){
+        Date currentDate = new Date();
+        Date expirationDate = new Date(currentDate.getTime() + JwtConstants.EXPIRATION_TIME);
+        System.out.println(currentDate);
+        System.out.println(expirationDate);
         return Jwts.builder()
                 .claims(extraClaims)
                 .subject(userDetails.getUsername())
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + JwtConstants.EXPIRATION_TIME))
+                .issuedAt(currentDate)
+                .expiration(expirationDate)
                 .signWith(getSignInKey())
                 .compact();
     }
@@ -68,5 +72,6 @@ public class JwtService {
         byte[] keyBytes = Decoders.BASE64.decode(JwtConstants.SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
+
 
 }

@@ -1,4 +1,4 @@
-package pl.pavetti.securityCourse.demo;
+package pl.pavetti.securityCourse.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
