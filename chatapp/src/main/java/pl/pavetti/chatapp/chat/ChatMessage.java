@@ -1,4 +1,4 @@
-package pl.pavetti.chatapp.model;
+package pl.pavetti.chatapp.chat;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

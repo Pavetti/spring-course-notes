@@ -1,9 +1,7 @@
-package pl.pavetti.chatapp.service;
+package pl.pavetti.chatapp.chatroom;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import pl.pavetti.chatapp.model.ChatRoom;
-import pl.pavetti.chatapp.repository.ChatRoomRepo;
 
 import java.util.Optional;
 
@@ -11,14 +9,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ChatRoomService {
 
-    private ChatRoomRepo chatRoomRepo;
+    private final ChatRoomRepository chatRoomRepository;
 
     public Optional<String> getChatRoomId(
             String senderId,
             String recipientId,
             boolean createNewRoomIfNotExists
     ) {
-        return chatRoomRepo
+        return chatRoomRepository
                 .findBySenderIdAndRecipientId(senderId, recipientId)
                 .map(ChatRoom::getChatId)
                 .or(() -> {
@@ -48,8 +46,8 @@ public class ChatRoomService {
                 .recipientId(senderId)
                 .build();
 
-        chatRoomRepo.save(senderRecipient);
-        chatRoomRepo.save(recipientSender);
+        chatRoomRepository.save(senderRecipient);
+        chatRoomRepository.save(recipientSender);
 
         return chatId;
     }

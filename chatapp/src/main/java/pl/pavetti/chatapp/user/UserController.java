@@ -1,4 +1,5 @@
-package pl.pavetti.chatapp.controller;
+package pl.pavetti.chatapp.user;
+
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -7,8 +8,6 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import pl.pavetti.chatapp.model.UserEntity;
-import pl.pavetti.chatapp.service.UserService;
 
 import java.util.List;
 
@@ -16,29 +15,28 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService service;
+    private final UserService userService;
 
     @MessageMapping("/user.addUser")
-    @SendTo("/user/topic")
-    public UserEntity addUser(
-            @Payload UserEntity user
-    ){
-        service.saveUser(user);
+    @SendTo("/user/public")
+    public User addUser(
+            @Payload User user
+    ) {
+        userService.saveUser(user);
         return user;
     }
 
     @MessageMapping("/user.disconnectUser")
-    @SendTo("/user/topic")
-    public UserEntity disconnectUser(
-            @Payload UserEntity user
-    ){
-        service.disconntectUser(user);
+    @SendTo("/user/public")
+    public User disconnectUser(
+            @Payload User user
+    ) {
+        userService.disconnect(user);
         return user;
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<UserEntity>> findConnectedUser(){
-        return ResponseEntity.ok(service.findConnectedUsers());
+    public ResponseEntity<List<User>> findConnectedUsers() {
+        return ResponseEntity.ok(userService.findConnectedUsers());
     }
-
 }
